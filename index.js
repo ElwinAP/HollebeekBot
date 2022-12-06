@@ -5,13 +5,15 @@ const token = require('./config.json');
 
 const CronJob = require('cron').CronJob;
 
+const fileSystem = require('fs');
+
 var channel;
 
-var indexAfwasser = 0;
-var indexSousChef = 1;
-var indexHanddoeken = 1;
-var indexGlas = 2;
-var indexGft = 3;
+var indexAfwasser = parseInt(fileSystem.readFileSync('./indexes/afwasser.txt'));
+var indexSousChef = parseInt(fileSystem.readFileSync('./indexes/souschef.txt'));
+var indexHanddoeken = parseInt(fileSystem.readFileSync('./indexes/handdoeken.txt'));
+var indexGlas = parseInt(fileSystem.readFileSync('./indexes/glas.txt'));
+var indexGft = parseInt(fileSystem.readFileSync('./indexes/gft.txt'));
 
 const members = [
     { name: "Elwin", discordUserId: "141333341659070465" },
@@ -19,6 +21,7 @@ const members = [
     { name: "Dieter", discordUserId: "1049621416007454720" },
     { name: "Tim", discordUserId: "496371517568057355" }
 ]
+
 client.once(Events.ClientReady, (c) => {
     console.log(`Discord client loaded, logged in as ${c.user.tag}`);
 });
@@ -26,6 +29,7 @@ client.once(Events.ClientReady, (c) => {
 client.login("MTA0OTY1NDIxMjE1MTIyNjQxOA.GuHM27.2Y6Ags1rbBbx_COIQLt8DZOucpf3sEsvKOjm0g");
 
 client.on('ready', () => {
+
     channel = client.channels.cache.get("1049616661503807560");
 
     // see https://crontab.guru/
@@ -34,8 +38,6 @@ client.on('ready', () => {
     const everyFirstDayOfMonth = "0 0 1 * *";
     const everyWednesdayAt7Pm = "0 19 * * WED";
 
-
-    
     var keukenJobs = new CronJob(everyDayAt6Pm, distributeKeukenTaken(), null, false, 'Europe/Brussels');
     keukenJobs.start();
     
@@ -65,6 +67,7 @@ async function distributeKeukenTaken() {
     channel.send({ content: `${afwasser} moet vandaag afwassen, en ${sousChef} moet Arren helpen met koken.` });
 
     indexAfwasser++;
+    indexSousChef++;
 
     if (indexAfwasser > members.length) {
         indexAfwasser = 0;
@@ -73,6 +76,9 @@ async function distributeKeukenTaken() {
     if (indexSousChef > members.length) {
         indexSousChef = 0;
     }
+
+    fileSystem.writeFileSync('./indexes/afwasser.txt', indexAfwasser.toString());
+    fileSystem.writeFileSync('./indexes/souschef.txt', indexSousChef.toString());
 }
 
 async function distributeHanddoekenTaak() {
@@ -85,6 +91,8 @@ async function distributeHanddoekenTaak() {
     if (indexHanddoeken > members.length) {
         indexHanddoeken = 0;
     }
+
+    fileSystem.writeFileSync('./indexes/handdoeken.txt', indexHanddoeken.toString());
 }
 
 async function distributeGlas() {
@@ -97,6 +105,8 @@ async function distributeGlas() {
     if (indexGlas > members.length) {
         indexGlas = 0;
     }
+
+    fileSystem.writeFileSync('./indexes/glas.txt', indexGlas.toString());
 }
 
 async function distributeGft() {
@@ -106,9 +116,13 @@ async function distributeGft() {
 
     indexGft++;
 
+    console.log(members.length);
+
     if (indexGft > members.length) {
         indexGft = 0;
     }
+
+    fileSystem.writeFileSync('./indexes/gft.txt', indexGft.toString());
 }
 
 async function getUser(index) {
