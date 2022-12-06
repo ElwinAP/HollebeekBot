@@ -26,7 +26,7 @@ client.once(Events.ClientReady, (c) => {
     console.log(`Discord client loaded, logged in as ${c.user.tag}`);
 });
 
-client.login("MTA0OTY1NDIxMjE1MTIyNjQxOA.GuHM27.2Y6Ags1rbBbx_COIQLt8DZOucpf3sEsvKOjm0g");
+client.login("MTA0OTY1NDIxMjE1MTIyNjQxOA.GYO-gq.zX1Ie2KoLwC57rvs84OoNnVBKrNYXxzcBAf8L0");
 
 client.on('ready', () => {
 
