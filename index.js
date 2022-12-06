@@ -69,11 +69,11 @@ async function distributeKeukenTaken() {
     indexAfwasser++;
     indexSousChef++;
 
-    if (indexAfwasser > members.length) {
+    if (indexAfwasser >= members.length) {
         indexAfwasser = 0;
     }
 
-    if (indexSousChef > members.length) {
+    if (indexSousChef >= members.length) {
         indexSousChef = 0;
     }
 
@@ -88,7 +88,7 @@ async function distributeHanddoekenTaak() {
 
     indexHanddoeken++;
 
-    if (indexHanddoeken > members.length) {
+    if (indexHanddoeken >= members.length) {
         indexHanddoeken = 0;
     }
 
@@ -102,7 +102,7 @@ async function distributeGlas() {
 
     indexGlas++;
 
-    if (indexGlas > members.length) {
+    if (indexGlas >= members.length) {
         indexGlas = 0;
     }
 
@@ -116,9 +116,7 @@ async function distributeGft() {
 
     indexGft++;
 
-    console.log(members.length);
-
-    if (indexGft > members.length) {
+    if (indexGft >= members.length) {
         indexGft = 0;
     }
 
