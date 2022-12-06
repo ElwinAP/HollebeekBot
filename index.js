@@ -1,8 +1,6 @@
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-const token = require('./config.json');
-
 const CronJob = require('cron').CronJob;
 
 const fileSystem = require('fs');
@@ -26,7 +24,7 @@ client.once(Events.ClientReady, (c) => {
     console.log(`Discord client loaded, logged in as ${c.user.tag}`);
 });
 
-client.login("MTA0OTY1NDIxMjE1MTIyNjQxOA.GYO-gq.zX1Ie2KoLwC57rvs84OoNnVBKrNYXxzcBAf8L0");
+client.login(process.env.DISCORD_TOKEN);
 
 client.on('ready', () => {
 
