@@ -31,22 +31,29 @@ client.on('ready', () => {
     channel = client.channels.cache.get("1049616661503807560");
 
     // see https://crontab.guru/
-    const everyDayAt6Pm = "0 18 * * *";
-    const everyTuesdayAt2pm = "0 14 * * TUE";
+    const everyDayAt10am = "0 10 * * *";
+    const everyTuesdayAt10am = "0 10 * * TUE";
     const everyFirstDayOfMonth = "0 0 1 * *";
     const everyWednesdayAt7Pm = "0 19 * * WED";
 
-    var keukenJobs = new CronJob(everyDayAt6Pm, distributeKeukenTaken(), null, false, 'Europe/Brussels');
-    keukenJobs.start();
+    //var keukenJobs = new CronJob(everyDayAt10am, distributeKeukenTaken(), null, false, 'Europe/Brussels');
+    //keukenJobs.start();
     
-    var HanddoekenJob = new CronJob(everyTuesdayAt2pm, distributeHanddoekenTaak(), null, false, 'Europe/Brussels');
-    HanddoekenJob.start();
+    //var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak(), null, false, 'Europe/Brussels');
+    //HanddoekenJob.start();
     
-    var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas(), null, false, 'Europe/Brussels');
-    glasJob.start();
+    //var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas(), null, false, 'Europe/Brussels');
+    //glasJob.start();
     
-    var gftJob = new CronJob(everyWednesdayAt7Pm, distributeGft(), null, false, 'Europe/Brussels');
-    gftJob.start();
+    //var gftJob = new CronJob(everyWednesdayAt7Pm, distributeGft(), null, false, 'Europe/Brussels');
+    //gftJob.start();
+
+    var testJob = new CronJob("* * * * *", function() {
+        client.login(process.env.DISCORD_TOKEN);
+        channel.send({content: "test test test"});
+    }, null, false, 'Europe/Brussels');
+
+    testJob.start();
 })
 
 async function distributeKeukenTaken() {
