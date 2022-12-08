@@ -25,37 +25,40 @@ client.on('ready', () => {
     channel = client.channels.cache.get("1049616661503807560");
 
     // see https://crontab.guru/
-    const everyDayAt10am = "0 10 * * *";
+    const everyDayAt11am = "0 11 * * *";
     const everyTuesdayAt10am = "0 10 * * TUE";
     const everyFirstDayOfMonth = "0 10 1 * *";
     const everyWednesdayAt10am = "0 10 * * WED";
 
-    // var keukenJobs = new CronJob(everyDayAt10am, distributeKeukenTaken(), null, false, 'Europe/Brussels');
-    // keukenJobs.start();
+    var keukenJobs = new CronJob(everyDayAt11am, distributeKeukenTaken(), null, false, 'Europe/Brussels');
+    keukenJobs.start();
     
-    // var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak(), null, false, 'Europe/Brussels');
-    // HanddoekenJob.start();
+    var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak(), null, false, 'Europe/Brussels');
+    HanddoekenJob.start();
     
-    // var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas(), null, false, 'Europe/Brussels');
-    // glasJob.start();
+    var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas(), null, false, 'Europe/Brussels');
+    glasJob.start();
     
-    // var gftJob = new CronJob(everyWednesdayAt10am, distributeGft(), null, false, 'Europe/Brussels');
-    // gftJob.start();
+    var gftJob = new CronJob(everyWednesdayAt10am, distributeGft(), null, false, 'Europe/Brussels');
+    gftJob.start();
 
-    var testJob = new CronJob("46 10 * * *", async function() {
-        var indexAfwasser = parseInt(fileSystem.readFileSync('./indexes/afwasser.txt'));
-        await channel.send({ content: `index: ${indexAfwasser}` });
-        indexAfwasser++;
-        if (indexAfwasser >= members.length) {
-            indexAfwasser = 0;
-        }
-        fileSystem.writeFileSync('./indexes/afwasser.txt', indexAfwasser.toString());
+    // var testJob = new CronJob("46 10 * * *", async function() {
+    //     var indexAfwasser = parseInt(fileSystem.readFileSync('./indexes/afwasser.txt'));
+    //     await channel.send({ content: `index: ${indexAfwasser}` });
+    //     indexAfwasser++;
+    //     if (indexAfwasser >= members.length) {
+    //         indexAfwasser = 0;
+    //     }
+    //     fileSystem.writeFileSync('./indexes/afwasser.txt', indexAfwasser.toString());
 
-    }, null, false, 'Europe/Brussels');
-    testJob.start();
+    // }, null, false, 'Europe/Brussels');
+    // testJob.start();
 })
 
 async function distributeKeukenTaken() {
+
+    console.log("distributeKeukenTaken() has started");
+
     var indexAfwasser = parseInt(fileSystem.readFileSync('./indexes/afwasser.txt'));
     var indexSousChef = parseInt(fileSystem.readFileSync('./indexes/souschef.txt'));
 
@@ -67,10 +70,14 @@ async function distributeKeukenTaken() {
         indexSousChef++;
     }
 
+    console.log("distributeKeukenTaken() is about to get users");
+
     var afwasser = await getUser(indexAfwasser);
     var sousChef = await getUser(indexSousChef);
 
-    channel.send({ content: `${afwasser} moet vandaag afwassen, en ${sousChef} moet Arren helpen met koken.` });
+    console.log("distributeKeukenTaken() is about to send to channel");
+
+    await channel.send({ content: `${afwasser} moet vandaag afwassen, en ${sousChef} moet Arren helpen met koken.` });
 
     indexAfwasser++;
     indexSousChef++;
@@ -91,7 +98,7 @@ async function distributeHanddoekenTaak() {
     var indexHanddoeken = parseInt(fileSystem.readFileSync('./indexes/handdoeken.txt'));
     var wasMadam = await getUser(indexHanddoeken);
 
-    channel.send({ content: `${wasMadam} moet deze week de handdoeken wassen en ophangen.` });
+    await channel.send({ content: `${wasMadam} moet deze week de handdoeken wassen en ophangen.` });
 
     indexHanddoeken++;
 
@@ -106,7 +113,7 @@ async function distributeGlas() {
     var indexGlas = parseInt(fileSystem.readFileSync('./indexes/glas.txt'));
     var glasUser = await getUser(indexGlas);
 
-    channel.send({ content: `${glasUser} moet deze maand het glas wegdoen.` });
+    await channel.send({ content: `${glasUser} moet deze maand het glas wegdoen.` });
 
     indexGlas++;
 
@@ -121,7 +128,7 @@ async function distributeGft() {
     var indexGft = parseInt(fileSystem.readFileSync('./indexes/gft.txt'));
     var gftUser = await getUser(indexGft);
 
-    channel.send({ content: `${gftUser} moet deze week het gft afval wegdoen.` });
+    await channel.send({ content: `${gftUser} moet deze week het gft afval wegdoen.` });
 
     indexGft++;
 
