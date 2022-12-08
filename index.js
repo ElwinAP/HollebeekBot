@@ -1,4 +1,4 @@
-const { Client, Events, GatewayIntentBits, User } = require('discord.js');
+const { Client, Events, GatewayIntentBits, User, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 const CronJob = require('cron').CronJob;
@@ -6,6 +6,13 @@ const CronJob = require('cron').CronJob;
 const fileSystem = require('fs');
 
 var channel;
+
+let skipSat = false;
+let skipSun = false;
+
+const katerButtonSat = "katerButtonSat";
+const katerButtonSun = "katerButtonSun";
+const katerButtonBoth = "katerButtonBoth";
 
 const members = [
     { name: "Elwin", discordUserId: "141333341659070465" },
@@ -25,12 +32,13 @@ client.on('ready', () => {
     channel = client.channels.cache.get("1049616661503807560");
 
     // see https://crontab.guru/
-    const everyDayAt11am = "0 11 * * *";
-    const everyTuesdayAt10am = "0 10 * * MON";
+    const everyDayAt10am = "0 10 * * *";
+    const everyTuesdayAt10am = "0 10 * * TUE";
     const everyFirstDayOfMonth = "0 10 1 * *";
     const everyWednesdayAt10am = "0 10 * * MON";
+    const everyFridayAt10Am = "0 10 * * FRI";
 
-    var keukenJobs = new CronJob(everyDayAt11am, distributeKeukenTaken, null, false, 'Europe/Brussels');
+    var keukenJobs = new CronJob(everyDayAt10am, distributeKeukenTaken, null, false, 'Europe/Brussels');
     keukenJobs.start();
     
     var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak, null, false, 'Europe/Brussels');
@@ -42,22 +50,74 @@ client.on('ready', () => {
     var gftJob = new CronJob(everyWednesdayAt10am, distributeGft, null, false, 'Europe/Brussels');
     gftJob.start();
 
-    // var testJob = new CronJob("46 10 * * *", async function() {
-    //     var indexAfwasser = parseInt(fileSystem.readFileSync('./indexes/afwasser.txt'));
-    //     await channel.send({ content: `index: ${indexAfwasser}` });
-    //     indexAfwasser++;
-    //     if (indexAfwasser >= members.length) {
-    //         indexAfwasser = 0;
-    //     }
-    //     fileSystem.writeFileSync('./indexes/afwasser.txt', indexAfwasser.toString());
-
-    // }, null, false, 'Europe/Brussels');
-    // testJob.start();
+    var katerDagJob = new CronJob(everyFridayAt10Am, askKaterDag, null, false, 'Europe/Brussels');
+    katerDagJob.start();
 })
+
+async function askKaterDag() {
+    let row = new ActionRowBuilder()
+    .addComponents(
+        new ButtonBuilder()
+            .setCustomId(katerButtonSat)
+            .setLabel('Zaterdag')
+            .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+            .setCustomId(katerButtonSun)
+            .setLabel('Zondag')
+            .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+            .setCustomId(katerButtonBoth)
+            .setLabel('Beide')
+            .setStyle(ButtonStyle.Primary),
+    );
+
+    await channel.send({content: `What day are we too naar de kloten om te koken deze week?`, components: [row]});
+
+    // mega convoluted manier om te zorgen da ik kan reageren op klik actie en knoppen updaten
+    const filter = i => i.customId === katerButtonSat || i.customId === katerButtonSun;
+    const collector = channel.createMessageComponentCollector({ filter, time: 28800000 });
+    collector.on('collect', async i => {
+        let newActionRows = i.message.components.map(oldActionRow => {
+
+            updatedActionRow = new ActionRowBuilder();
+            updatedActionRow.addComponents(oldActionRow.components.map(buttonComponent => {
+                newButton = ButtonBuilder.from(buttonComponent)
+                newButton.setDisabled(true);
+                return newButton;
+            }));
+            return updatedActionRow;
+        });
+
+        if (i.customId === katerButtonSat) {
+            skipSat = true;
+        }
+
+        if (i.customId === katerButtonSun) {
+            skipSun = true;
+        }
+
+        if (i.customId === katerButtonBoth) {
+            skipSat = true;
+            skipSun = true;
+        }
+
+        await i.update({ content: `Mercikes om te klikken ${i.user}`, components: newActionRows});
+    });
+}
 
 async function distributeKeukenTaken() {
 
-    console.log("distributeKeukenTaken() has started");
+    var date = new Date();
+
+    if (date.getDay() == 5 && skipSat == true) {
+        skipSat = false;
+        return;
+    }
+
+    if (date.getDay() == 6 && skipSun == true) {
+        skipSun = false;
+        return;
+    }
 
     var indexAfwasser = parseInt(fileSystem.readFileSync('./indexes/afwasser.txt'));
     var indexSousChef = parseInt(fileSystem.readFileSync('./indexes/souschef.txt'));
@@ -70,12 +130,8 @@ async function distributeKeukenTaken() {
         indexSousChef++;
     }
 
-    console.log("distributeKeukenTaken() is about to get users");
-
     var afwasser = await getUser(indexAfwasser);
     var sousChef = await getUser(indexSousChef);
-
-    console.log("distributeKeukenTaken() is about to send to channel");
 
     await channel.send({ content: `${afwasser} moet vandaag afwassen, en ${sousChef} moet Arren helpen met koken.` });
 
