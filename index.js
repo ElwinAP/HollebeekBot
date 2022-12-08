@@ -30,17 +30,29 @@ client.on('ready', () => {
     const everyFirstDayOfMonth = "0 10 1 * *";
     const everyWednesdayAt10am = "0 10 * * WED";
 
-    var keukenJobs = new CronJob(everyDayAt10am, distributeKeukenTaken(), null, false, 'Europe/Brussels');
-    keukenJobs.start();
+    // var keukenJobs = new CronJob(everyDayAt10am, distributeKeukenTaken(), null, false, 'Europe/Brussels');
+    // keukenJobs.start();
     
-    var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak(), null, false, 'Europe/Brussels');
-    HanddoekenJob.start();
+    // var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak(), null, false, 'Europe/Brussels');
+    // HanddoekenJob.start();
     
-    var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas(), null, false, 'Europe/Brussels');
-    glasJob.start();
+    // var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas(), null, false, 'Europe/Brussels');
+    // glasJob.start();
     
-    var gftJob = new CronJob(everyWednesdayAt10am, distributeGft(), null, false, 'Europe/Brussels');
-    gftJob.start();
+    // var gftJob = new CronJob(everyWednesdayAt10am, distributeGft(), null, false, 'Europe/Brussels');
+    // gftJob.start();
+
+    var testJob = new CronJob("46 10 * * *", async function() {
+        var indexAfwasser = parseInt(fileSystem.readFileSync('./indexes/afwasser.txt'));
+        await channel.send({ content: `index: ${indexAfwasser}` });
+        indexAfwasser++;
+        if (indexAfwasser >= members.length) {
+            indexAfwasser = 0;
+        }
+        fileSystem.writeFileSync('./indexes/afwasser.txt', indexAfwasser.toString());
+
+    }, null, false, 'Europe/Brussels');
+    testJob.start();
 })
 
 async function distributeKeukenTaken() {
