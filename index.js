@@ -26,20 +26,20 @@ client.on('ready', () => {
 
     // see https://crontab.guru/
     const everyDayAt11am = "0 11 * * *";
-    const everyTuesdayAt10am = "0 10 * * TUE";
+    const everyTuesdayAt10am = "0 10 * * MON";
     const everyFirstDayOfMonth = "0 10 1 * *";
-    const everyWednesdayAt10am = "0 10 * * WED";
+    const everyWednesdayAt10am = "0 10 * * MON";
 
-    var keukenJobs = new CronJob(everyDayAt11am, distributeKeukenTaken(), null, false, 'Europe/Brussels');
+    var keukenJobs = new CronJob(everyDayAt11am, distributeKeukenTaken, null, false, 'Europe/Brussels');
     keukenJobs.start();
     
-    var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak(), null, false, 'Europe/Brussels');
+    var HanddoekenJob = new CronJob(everyTuesdayAt10am, distributeHanddoekenTaak, null, false, 'Europe/Brussels');
     HanddoekenJob.start();
     
-    var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas(), null, false, 'Europe/Brussels');
+    var glasJob = new CronJob(everyFirstDayOfMonth, distributeGlas, null, false, 'Europe/Brussels');
     glasJob.start();
     
-    var gftJob = new CronJob(everyWednesdayAt10am, distributeGft(), null, false, 'Europe/Brussels');
+    var gftJob = new CronJob(everyWednesdayAt10am, distributeGft, null, false, 'Europe/Brussels');
     gftJob.start();
 
     // var testJob = new CronJob("46 10 * * *", async function() {
